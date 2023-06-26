@@ -1,3 +1,10 @@
+#[derive(Debug, PartialEq)]
+pub enum DiffType {
+    Common,
+    Add,
+    Remove,
+}
+
 fn find_longest_common_sequence(left: &Vec<String>, right: &Vec<String>) -> (usize, usize, usize) {
     let max_possible_overlap = std::cmp::min(left.len(), right.len());
 
@@ -17,6 +24,54 @@ fn find_longest_common_sequence(left: &Vec<String>, right: &Vec<String>) -> (usi
     (0, 0, 0)
 }
 
+pub fn annotate_sequence(left: Vec<String>, right: Vec<String>) -> Vec<(String, DiffType)> {
+    let (left_offset, right_offset, len) = find_longest_common_sequence(&left, &right);
+
+    if len == 0 {
+        let mut ret = Vec::new();
+        for x in left {
+            ret.push((x, DiffType::Remove));
+        }
+        for x in right {
+            ret.push((x, DiffType::Add));
+        }
+        return ret;
+    }
+
+    let left_prefix = &left[0..left_offset];
+    let left_suffix = &left[(left_offset + len)..left.len()];
+
+    let common = &left[left_offset..(left_offset + len)];
+
+    let right_prefix = &right[0..right_offset];
+    let right_suffix = &right[(right_offset + len)..right.len()];
+
+    let mut ret = Vec::new();
+
+    let left_ret = annotate_sequence(left_prefix.to_vec(), right_prefix.to_vec());
+    let right_ret = annotate_sequence(left_suffix.to_vec(), right_suffix.to_vec());
+
+    for x in left_ret {
+        ret.push(x);
+    }
+
+    for x in common {
+        ret.push((x.to_string(), DiffType::Common));
+    }
+
+    for x in right_ret {
+        ret.push(x);
+    }
+
+    ret
+}
+
+pub fn annotate_strings(left: String, right: String) -> Vec<(String, DiffType)> {
+    let left_words: Vec<String> = left.split_whitespace().map(|s| s.to_string()).collect();
+    let right_words: Vec<String> = right.split_whitespace().map(|s| s.to_string()).collect();
+
+    annotate_sequence(left_words, right_words)
+}
 #[cfg(test)]
 mod tests {
     use super::*;
