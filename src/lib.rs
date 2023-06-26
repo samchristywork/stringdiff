@@ -22,7 +22,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_longest_common_sequence() {
+    fn test_find_longest_common_sequence() {
         let left = vec![
             String::from("foo"),
             String::from("bar"),
@@ -37,5 +37,17 @@ mod tests {
         ];
 
         assert_eq!(find_longest_common_sequence(&left, &right), (1, 0, 3));
+    }
+
+    #[test]
+    fn test_find_longest_common_sequence_2() {
+        let left = vec![
+            String::from("foo"),
+        ];
+        let right = vec![
+            String::from("bar"),
+        ];
+
+        assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
     }
 }
