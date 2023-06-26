@@ -16,3 +16,26 @@ fn find_longest_common_sequence(left: &Vec<String>, right: &Vec<String>) -> (usi
 
     (0, 0, 0)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_longest_common_sequence() {
+        let left = vec![
+            String::from("foo"),
+            String::from("bar"),
+            String::from("baz"),
+            String::from("qux"),
+        ];
+        let right = vec![
+            String::from("bar"),
+            String::from("baz"),
+            String::from("qux"),
+            String::from("quux"),
+        ];
+
+        assert_eq!(find_longest_common_sequence(&left, &right), (1, 0, 3));
+    }
+}
