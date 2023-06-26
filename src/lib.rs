@@ -62,4 +62,42 @@ mod tests {
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 1));
     }
+
+    #[test]
+    fn test_find_longest_common_sequence_4() {
+        let left = vec![
+            String::from("foo"),
+            String::from("bar"),
+        ];
+        let right = vec![
+            String::from("foo"),
+            String::from("bar"),
+        ];
+
+        assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 2));
+    }
+
+    #[test]
+    fn test_find_longest_common_sequence_5() {
+        let left = vec![
+        ];
+        let right = vec![
+            String::from("foo"),
+            String::from("bar"),
+        ];
+
+        assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
+    }
+
+    #[test]
+    fn test_find_longest_common_sequence_6() {
+        let left = vec![
+            String::from("foo"),
+            String::from("bar"),
+        ];
+        let right = vec![
+        ];
+
+        assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
+    }
 }
