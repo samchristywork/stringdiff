@@ -5,7 +5,7 @@ pub enum DiffType {
     Remove,
 }
 
-fn find_longest_common_sequence(left: &Vec<String>, right: &Vec<String>) -> (usize, usize, usize) {
+fn find_longest_common_sequence<T: std::cmp::PartialEq>(left: &Vec<T>, right: &Vec<T>) -> (usize, usize, usize) {
     let max_possible_overlap = std::cmp::min(left.len(), right.len());
 
     for len in 0..max_possible_overlap + 1 {
