@@ -72,6 +72,21 @@ pub fn annotate_strings(left: &String, right: &String) -> Vec<(String, DiffType)
 
     annotate_sequence(&left_words, &right_words)
 }
+
+pub fn colorize(ret: &Vec<(String, DiffType)>) {
+        for x in ret {
+            match x.1 {
+                DiffType::Common => print!("\x1b[0m"),
+                DiffType::Add => print!("\x1b[32m"),
+                DiffType::Remove => print!("\x1b[31m"),
+            }
+            print!("{} ", x.0);
+            print!("\x1b[0m");
+        }
+
+        println!();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
