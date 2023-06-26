@@ -77,7 +77,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_find_longest_common_sequence() {
+    fn test_find_longest_common_sequence_1() {
         let left = vec![
             String::from("foo"),
             String::from("bar"),
@@ -154,5 +154,47 @@ mod tests {
         ];
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
+    }
+
+    #[test]
+    fn test_annotate_strings_1() {
+        let left =  String::from("foo");
+        let right = String::from("bar");
+
+        let output = vec![
+            (String::from("foo"), DiffType::Remove),
+            (String::from("bar"), DiffType::Add),
+        ];
+
+        assert_eq!(annotate_strings(left, right), output);
+    }
+
+    #[test]
+    fn test_annotate_strings_2() {
+        let left =  String::from("foo bar");
+        let right = String::from("bar baz");
+
+        let output = vec![
+            (String::from("foo"), DiffType::Remove),
+            (String::from("bar"), DiffType::Common),
+            (String::from("baz"), DiffType::Add),
+        ];
+
+        assert_eq!(annotate_strings(left, right), output);
+    }
+
+    #[test]
+    fn test_annotate_strings_3() {
+        let left =  String::from("foo bar baz");
+        let right = String::from("bar baz qux");
+
+        let output = vec![
+            (String::from("foo"), DiffType::Remove),
+            (String::from("bar"), DiffType::Common),
+            (String::from("baz"), DiffType::Common),
+            (String::from("qux"), DiffType::Add),
+        ];
+
+        assert_eq!(annotate_strings(left, right), output);
     }
 }
