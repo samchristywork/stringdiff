@@ -24,16 +24,16 @@ fn find_longest_common_sequence<T: std::cmp::PartialEq>(left: &Vec<T>, right: &V
     (0, 0, 0)
 }
 
-pub fn annotate_sequence(left: &Vec<String>, right: &Vec<String>) -> Vec<(String, DiffType)> {
+pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(left: Vec<T>, right: Vec<T>) -> Vec<(T, DiffType)> {
     let (left_offset, right_offset, len) = find_longest_common_sequence(&left, &right);
 
     if len == 0 {
         let mut ret = Vec::new();
         for x in left {
-            ret.push((x.to_string(), DiffType::Remove));
+            ret.push((x, DiffType::Remove));
         }
         for x in right {
-            ret.push((x.to_string(), DiffType::Add));
+            ret.push((x, DiffType::Add));
         }
         return ret;
     }
@@ -48,15 +48,15 @@ pub fn annotate_sequence(left: &Vec<String>, right: &Vec<String>) -> Vec<(String
 
     let mut ret = Vec::new();
 
-    let left_ret = annotate_sequence(&left_prefix.to_vec(), &right_prefix.to_vec());
-    let right_ret = annotate_sequence(&left_suffix.to_vec(), &right_suffix.to_vec());
+    let left_ret = annotate_sequence(left_prefix.to_vec(), right_prefix.to_vec());
+    let right_ret = annotate_sequence(left_suffix.to_vec(), right_suffix.to_vec());
 
     for x in left_ret {
         ret.push(x);
     }
 
     for x in common {
-        ret.push((x.to_string(), DiffType::Common));
+        ret.push((x.clone(), DiffType::Common));
     }
 
     for x in right_ret {
@@ -70,7 +70,7 @@ pub fn annotate_strings(left: &String, right: &String) -> Vec<(String, DiffType)
     let left_words: Vec<String> = left.split_whitespace().map(|s| s.to_string()).collect();
     let right_words: Vec<String> = right.split_whitespace().map(|s| s.to_string()).collect();
 
-    annotate_sequence(&left_words, &right_words)
+    annotate_sequence(left_words, right_words)
 }
 
 pub fn colorize(ret: &Vec<(String, DiffType)>) {
