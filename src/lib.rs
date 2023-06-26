@@ -50,4 +50,16 @@ mod tests {
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
     }
+
+    #[test]
+    fn test_find_longest_common_sequence_3() {
+        let left = vec![
+            String::from("foo"),
+        ];
+        let right = vec![
+            String::from("foo"),
+        ];
+
+        assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 1));
+    }
 }
