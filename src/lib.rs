@@ -24,16 +24,16 @@ fn find_longest_common_sequence(left: &Vec<String>, right: &Vec<String>) -> (usi
     (0, 0, 0)
 }
 
-pub fn annotate_sequence(left: Vec<String>, right: Vec<String>) -> Vec<(String, DiffType)> {
+pub fn annotate_sequence(left: &Vec<String>, right: &Vec<String>) -> Vec<(String, DiffType)> {
     let (left_offset, right_offset, len) = find_longest_common_sequence(&left, &right);
 
     if len == 0 {
         let mut ret = Vec::new();
         for x in left {
-            ret.push((x, DiffType::Remove));
+            ret.push((x.to_string(), DiffType::Remove));
         }
         for x in right {
-            ret.push((x, DiffType::Add));
+            ret.push((x.to_string(), DiffType::Add));
         }
         return ret;
     }
@@ -48,8 +48,8 @@ pub fn annotate_sequence(left: Vec<String>, right: Vec<String>) -> Vec<(String, 
 
     let mut ret = Vec::new();
 
-    let left_ret = annotate_sequence(left_prefix.to_vec(), right_prefix.to_vec());
-    let right_ret = annotate_sequence(left_suffix.to_vec(), right_suffix.to_vec());
+    let left_ret = annotate_sequence(&left_prefix.to_vec(), &right_prefix.to_vec());
+    let right_ret = annotate_sequence(&left_suffix.to_vec(), &right_suffix.to_vec());
 
     for x in left_ret {
         ret.push(x);
@@ -66,11 +66,11 @@ pub fn annotate_sequence(left: Vec<String>, right: Vec<String>) -> Vec<(String, 
     ret
 }
 
-pub fn annotate_strings(left: String, right: String) -> Vec<(String, DiffType)> {
+pub fn annotate_strings(left: &String, right: &String) -> Vec<(String, DiffType)> {
     let left_words: Vec<String> = left.split_whitespace().map(|s| s.to_string()).collect();
     let right_words: Vec<String> = right.split_whitespace().map(|s| s.to_string()).collect();
 
-    annotate_sequence(left_words, right_words)
+    annotate_sequence(&left_words, &right_words)
 }
 #[cfg(test)]
 mod tests {
@@ -166,7 +166,7 @@ mod tests {
             (String::from("bar"), DiffType::Add),
         ];
 
-        assert_eq!(annotate_strings(left, right), output);
+        assert_eq!(annotate_strings(&left, &right), output);
     }
 
     #[test]
@@ -180,7 +180,7 @@ mod tests {
             (String::from("baz"), DiffType::Add),
         ];
 
-        assert_eq!(annotate_strings(left, right), output);
+        assert_eq!(annotate_strings(&left, &right), output);
     }
 
     #[test]
@@ -195,7 +195,7 @@ mod tests {
             (String::from("qux"), DiffType::Add),
         ];
 
-        assert_eq!(annotate_strings(left, right), output);
+        assert_eq!(annotate_strings(&left, &right), output);
     }
 
     #[test]
@@ -223,7 +223,7 @@ mod tests {
             (String::from("wrong."), DiffType::Add),
         ];
 
-        assert_eq!(annotate_strings(left, right), output);
+        assert_eq!(annotate_strings(&left, &right), output);
     }
 
     #[test]
@@ -236,6 +236,6 @@ mod tests {
             (String::from("there"), DiffType::Common),
         ];
 
-        assert_eq!(annotate_strings(left, right), output);
+        assert_eq!(annotate_strings(&left, &right), output);
     }
 }
