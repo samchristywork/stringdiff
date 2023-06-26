@@ -197,4 +197,45 @@ mod tests {
 
         assert_eq!(annotate_strings(left, right), output);
     }
+
+    #[test]
+    fn test_annotate_strings_4() {
+        let left =  String::from("This is a pretty longish string. I don't know if you can get it right.");
+        let right = String::from("This is a pretty long string. I don't know if you can get it wrong.");
+
+        let output = vec![
+            (String::from("This"), DiffType::Common),
+            (String::from("is"), DiffType::Common),
+            (String::from("a"), DiffType::Common),
+            (String::from("pretty"), DiffType::Common),
+            (String::from("longish"), DiffType::Remove),
+            (String::from("long"), DiffType::Add),
+            (String::from("string."), DiffType::Common),
+            (String::from("I"), DiffType::Common),
+            (String::from("don't"), DiffType::Common),
+            (String::from("know"), DiffType::Common),
+            (String::from("if"), DiffType::Common),
+            (String::from("you"), DiffType::Common),
+            (String::from("can"), DiffType::Common),
+            (String::from("get"), DiffType::Common),
+            (String::from("it"), DiffType::Common),
+            (String::from("right."), DiffType::Remove),
+            (String::from("wrong."), DiffType::Add),
+        ];
+
+        assert_eq!(annotate_strings(left, right), output);
+    }
+
+    #[test]
+    fn test_annotate_strings_5() {
+        let left =  String::from("hi there");
+        let right = String::from("there");
+
+        let output = vec![
+            (String::from("hi"), DiffType::Remove),
+            (String::from("there"), DiffType::Common),
+        ];
+
+        assert_eq!(annotate_strings(left, right), output);
+    }
 }
