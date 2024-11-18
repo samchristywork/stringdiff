@@ -5,26 +5,42 @@ pub enum DiffType {
     Remove,
 }
 
-fn find_longest_common_sequence<T: std::cmp::PartialEq>(left: &Vec<T>, right: &Vec<T>) -> (usize, usize, usize) {
-    let max_possible_overlap = std::cmp::min(left.len(), right.len());
+fn find_longest_common_sequence<T: std::cmp::PartialEq>(
+    left: &[T],
+    right: &[T],
+) -> (usize, usize, usize) {
+    let n = left.len();
+    let m = right.len();
 
-    for len in 0..max_possible_overlap + 1 {
-        let len = max_possible_overlap - len;
-        for left_offset in 0..(left.len() - len) + 1 {
-            let left_slice = &left[left_offset..(left_offset + len)];
-            for right_offset in 0..(right.len() - len + 1) {
-                let right_slice = &right[right_offset..(right_offset + len)];
-                if left_slice == right_slice {
-                    return (left_offset, right_offset, len);
+    if n == 0 || m == 0 {
+        return (0, 0, 0);
+    }
+
+    let mut dp = vec![vec![0usize; m + 1]; n + 1];
+    let mut max_len = 0;
+    let mut max_left = 0;
+    let mut max_right = 0;
+
+    for i in 1..=n {
+        for j in 1..=m {
+            if left[i - 1] == right[j - 1] {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+                if dp[i][j] > max_len {
+                    max_len = dp[i][j];
+                    max_left = i - max_len;
+                    max_right = j - max_len;
                 }
             }
         }
     }
 
-    (0, 0, 0)
+    (max_left, max_right, max_len)
 }
 
-pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(left: Vec<T>, right: Vec<T>) -> Vec<(T, DiffType)> {
+pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(
+    left: Vec<T>,
+    right: Vec<T>,
+) -> Vec<(T, DiffType)> {
     let (left_offset, right_offset, len) = find_longest_common_sequence(&left, &right);
 
     if len == 0 {
@@ -74,17 +90,17 @@ pub fn annotate_strings(left: &String, right: &String) -> Vec<(String, DiffType)
 }
 
 pub fn colorize(ret: &Vec<(String, DiffType)>) {
-        for x in ret {
-            match x.1 {
-                DiffType::Common => print!("\x1b[0m"),
-                DiffType::Add => print!("\x1b[32m"),
-                DiffType::Remove => print!("\x1b[31m"),
-            }
-            print!("{} ", x.0);
-            print!("\x1b[0m");
+    for x in ret {
+        match x.1 {
+            DiffType::Common => print!("\x1b[0m"),
+            DiffType::Add => print!("\x1b[32m"),
+            DiffType::Remove => print!("\x1b[31m"),
         }
+        print!("{} ", x.0);
+        print!("\x1b[0m");
+    }
 
-        println!();
+    println!();
 }
 
 #[cfg(test)]
@@ -111,69 +127,47 @@ mod tests {
 
     #[test]
     fn test_find_longest_common_sequence_2() {
-        let left = vec![
-            String::from("foo"),
-        ];
-        let right = vec![
-            String::from("bar"),
-        ];
+        let left = vec![String::from("foo")];
+        let right = vec![String::from("bar")];
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
     }
 
     #[test]
     fn test_find_longest_common_sequence_3() {
-        let left = vec![
-            String::from("foo"),
-        ];
-        let right = vec![
-            String::from("foo"),
-        ];
+        let left = vec![String::from("foo")];
+        let right = vec![String::from("foo")];
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 1));
     }
 
     #[test]
     fn test_find_longest_common_sequence_4() {
-        let left = vec![
-            String::from("foo"),
-            String::from("bar"),
-        ];
-        let right = vec![
-            String::from("foo"),
-            String::from("bar"),
-        ];
+        let left = vec![String::from("foo"), String::from("bar")];
+        let right = vec![String::from("foo"), String::from("bar")];
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 2));
     }
 
     #[test]
     fn test_find_longest_common_sequence_5() {
-        let left = vec![
-        ];
-        let right = vec![
-            String::from("foo"),
-            String::from("bar"),
-        ];
+        let left = vec![];
+        let right = vec![String::from("foo"), String::from("bar")];
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
     }
 
     #[test]
     fn test_find_longest_common_sequence_6() {
-        let left = vec![
-            String::from("foo"),
-            String::from("bar"),
-        ];
-        let right = vec![
-        ];
+        let left = vec![String::from("foo"), String::from("bar")];
+        let right = vec![];
 
         assert_eq!(find_longest_common_sequence(&left, &right), (0, 0, 0));
     }
 
     #[test]
     fn test_annotate_strings_1() {
-        let left =  String::from("foo");
+        let left = String::from("foo");
         let right = String::from("bar");
 
         let output = vec![
@@ -186,7 +180,7 @@ mod tests {
 
     #[test]
     fn test_annotate_strings_2() {
-        let left =  String::from("foo bar");
+        let left = String::from("foo bar");
         let right = String::from("bar baz");
 
         let output = vec![
@@ -200,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_annotate_strings_3() {
-        let left =  String::from("foo bar baz");
+        let left = String::from("foo bar baz");
         let right = String::from("bar baz qux");
 
         let output = vec![
@@ -215,8 +209,10 @@ mod tests {
 
     #[test]
     fn test_annotate_strings_4() {
-        let left =  String::from("This is a pretty longish string. I don't know if you can get it right.");
-        let right = String::from("This is a pretty long string. I don't know if you can get it wrong.");
+        let left =
+            String::from("This is a pretty longish string. I don't know if you can get it right.");
+        let right =
+            String::from("This is a pretty long string. I don't know if you can get it wrong.");
 
         let output = vec![
             (String::from("This"), DiffType::Common),
@@ -243,7 +239,7 @@ mod tests {
 
     #[test]
     fn test_annotate_strings_5() {
-        let left =  String::from("hi there");
+        let left = String::from("hi there");
         let right = String::from("there");
 
         let output = vec![
