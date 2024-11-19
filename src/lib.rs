@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum DiffType {
     Common,
     Add,
@@ -41,42 +41,43 @@ pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(
     left: Vec<T>,
     right: Vec<T>,
 ) -> Vec<(T, DiffType)> {
-    let (left_offset, right_offset, len) = find_longest_common_sequence(&left, &right);
-
-    if len == 0 {
-        let mut ret = Vec::new();
-        for x in left {
-            ret.push((x, DiffType::Remove));
-        }
-        for x in right {
-            ret.push((x, DiffType::Add));
-        }
-        return ret;
+    enum WorkItem<T> {
+        Annotate(Vec<T>, Vec<T>),
+        Emit(Vec<T>, DiffType),
     }
 
-    let left_prefix = &left[0..left_offset];
-    let left_suffix = &left[(left_offset + len)..left.len()];
-
-    let common = &left[left_offset..(left_offset + len)];
-
-    let right_prefix = &right[0..right_offset];
-    let right_suffix = &right[(right_offset + len)..right.len()];
-
+    let mut stack = vec![WorkItem::Annotate(left, right)];
     let mut ret = Vec::new();
 
-    let left_ret = annotate_sequence(left_prefix.to_vec(), right_prefix.to_vec());
-    let right_ret = annotate_sequence(left_suffix.to_vec(), right_suffix.to_vec());
+    while let Some(item) = stack.pop() {
+        match item {
+            WorkItem::Emit(items, diff_type) => {
+                for x in items {
+                    ret.push((x, diff_type.clone()));
+                }
+            }
+            WorkItem::Annotate(left, right) => {
+                let (lo, ro, len) = find_longest_common_sequence(&left, &right);
 
-    for x in left_ret {
-        ret.push(x);
-    }
-
-    for x in common {
-        ret.push((x.clone(), DiffType::Common));
-    }
-
-    for x in right_ret {
-        ret.push(x);
+                if len == 0 {
+                    stack.push(WorkItem::Emit(right, DiffType::Add));
+                    stack.push(WorkItem::Emit(left, DiffType::Remove));
+                } else {
+                    stack.push(WorkItem::Annotate(
+                        left[lo + len..].to_vec(),
+                        right[ro + len..].to_vec(),
+                    ));
+                    stack.push(WorkItem::Emit(
+                        left[lo..lo + len].to_vec(),
+                        DiffType::Common,
+                    ));
+                    stack.push(WorkItem::Annotate(
+                        left[..lo].to_vec(),
+                        right[..ro].to_vec(),
+                    ));
+                }
+            }
+        }
     }
 
     ret
