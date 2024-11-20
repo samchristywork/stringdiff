@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DiffType {
     Common,
     Add,
@@ -37,6 +37,7 @@ fn find_longest_common_sequence<T: std::cmp::PartialEq>(
     (max_left, max_right, max_len)
 }
 
+#[must_use]
 pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(
     left: Vec<T>,
     right: Vec<T>,
@@ -83,9 +84,16 @@ pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(
     ret
 }
 
+#[must_use]
 pub fn annotate_strings(left: &String, right: &String) -> Vec<(String, DiffType)> {
-    let left_words: Vec<String> = left.split_whitespace().map(|s| s.to_string()).collect();
-    let right_words: Vec<String> = right.split_whitespace().map(|s| s.to_string()).collect();
+    let left_words: Vec<String> = left
+        .split_whitespace()
+        .map(std::string::ToString::to_string)
+        .collect();
+    let right_words: Vec<String> = right
+        .split_whitespace()
+        .map(std::string::ToString::to_string)
+        .collect();
 
     annotate_sequence(left_words, right_words)
 }
