@@ -85,7 +85,7 @@ pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(
 }
 
 #[must_use]
-pub fn annotate_strings(left: &String, right: &String) -> Vec<(String, DiffType)> {
+pub fn annotate_strings(left: &str, right: &str) -> Vec<(String, DiffType)> {
     let left_words: Vec<String> = left
         .split_whitespace()
         .map(std::string::ToString::to_string)
