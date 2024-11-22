@@ -98,7 +98,7 @@ pub fn annotate_strings(left: &str, right: &str) -> Vec<(String, DiffType)> {
     annotate_sequence(left_words, right_words)
 }
 
-pub fn colorize(ret: &Vec<(String, DiffType)>) {
+pub fn colorize(ret: &[(String, DiffType)]) {
     for x in ret {
         match x.1 {
             DiffType::Common => print!("\x1b[0m"),
