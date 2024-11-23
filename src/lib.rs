@@ -39,12 +39,12 @@ fn find_longest_common_sequence<T: std::cmp::PartialEq>(
 
 #[must_use]
 pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(
-    left: Vec<T>,
-    right: Vec<T>,
+    left: &[T],
+    right: &[T],
 ) -> Vec<(T, DiffType)> {
-    enum WorkItem<T> {
-        Annotate(Vec<T>, Vec<T>),
-        Emit(Vec<T>, DiffType),
+    enum WorkItem<'a, T> {
+        Annotate(&'a [T], &'a [T]),
+        Emit(&'a [T], DiffType),
     }
 
     let mut stack = vec![WorkItem::Annotate(left, right)];
@@ -54,28 +54,19 @@ pub fn annotate_sequence<T: std::cmp::PartialEq + std::clone::Clone>(
         match item {
             WorkItem::Emit(items, diff_type) => {
                 for x in items {
-                    ret.push((x, diff_type.clone()));
+                    ret.push((x.clone(), diff_type.clone()));
                 }
             }
             WorkItem::Annotate(left, right) => {
-                let (lo, ro, len) = find_longest_common_sequence(&left, &right);
+                let (lo, ro, len) = find_longest_common_sequence(left, right);
 
                 if len == 0 {
                     stack.push(WorkItem::Emit(right, DiffType::Add));
                     stack.push(WorkItem::Emit(left, DiffType::Remove));
                 } else {
-                    stack.push(WorkItem::Annotate(
-                        left[lo + len..].to_vec(),
-                        right[ro + len..].to_vec(),
-                    ));
-                    stack.push(WorkItem::Emit(
-                        left[lo..lo + len].to_vec(),
-                        DiffType::Common,
-                    ));
-                    stack.push(WorkItem::Annotate(
-                        left[..lo].to_vec(),
-                        right[..ro].to_vec(),
-                    ));
+                    stack.push(WorkItem::Annotate(&left[lo + len..], &right[ro + len..]));
+                    stack.push(WorkItem::Emit(&left[lo..lo + len], DiffType::Common));
+                    stack.push(WorkItem::Annotate(&left[..lo], &right[..ro]));
                 }
             }
         }
@@ -95,7 +86,7 @@ pub fn annotate_strings(left: &str, right: &str) -> Vec<(String, DiffType)> {
         .map(std::string::ToString::to_string)
         .collect();
 
-    annotate_sequence(left_words, right_words)
+    annotate_sequence(&left_words, &right_words)
 }
 
 pub fn colorize(ret: &[(String, DiffType)]) {
