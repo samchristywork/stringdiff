@@ -89,18 +89,16 @@ pub fn annotate_strings(left: &str, right: &str) -> Vec<(String, DiffType)> {
     annotate_sequence(&left_words, &right_words)
 }
 
-pub fn colorize(ret: &[(String, DiffType)]) {
+pub fn colorize(ret: &[(String, DiffType)], out: &mut impl std::io::Write) {
     for x in ret {
-        match x.1 {
-            DiffType::Common => print!("\x1b[0m"),
-            DiffType::Add => print!("\x1b[32m"),
-            DiffType::Remove => print!("\x1b[31m"),
-        }
-        print!("{} ", x.0);
-        print!("\x1b[0m");
+        let color = match x.1 {
+            DiffType::Common => "\x1b[0m",
+            DiffType::Add => "\x1b[32m",
+            DiffType::Remove => "\x1b[31m",
+        };
+        write!(out, "{}{} \x1b[0m", color, x.0).unwrap();
     }
-
-    println!();
+    writeln!(out).unwrap();
 }
 
 #[cfg(test)]

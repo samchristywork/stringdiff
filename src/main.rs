@@ -7,5 +7,5 @@ fn main() {
         std::process::exit(1);
     }
     let result = annotate_strings(&args[1], &args[2]);
-    colorize(&result);
+    colorize(&result, &mut std::io::stdout());
 }
