@@ -89,6 +89,12 @@ pub fn annotate_strings(left: &str, right: &str) -> Vec<(String, DiffType)> {
     annotate_sequence(&left_words, &right_words)
 }
 
+pub fn annotate_chars(left: &str, right: &str) -> Vec<(char, DiffType)> {
+    let left_chars: Vec<char> = left.chars().collect();
+    let right_chars: Vec<char> = right.chars().collect();
+    annotate_sequence(&left_chars, &right_chars)
+}
+
 pub fn colorize(ret: &[(String, DiffType)], out: &mut impl std::io::Write) {
     for x in ret {
         let color = match x.1 {
