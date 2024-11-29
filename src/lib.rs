@@ -253,4 +253,126 @@ mod tests {
 
         assert_eq!(annotate_strings(&left, &right), output);
     }
+
+    #[test]
+    fn test_annotate_strings_empty_left() {
+        assert_eq!(
+            annotate_strings("", "foo bar"),
+            vec![
+                (String::from("foo"), DiffType::Add),
+                (String::from("bar"), DiffType::Add),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_annotate_strings_empty_right() {
+        assert_eq!(
+            annotate_strings("foo bar", ""),
+            vec![
+                (String::from("foo"), DiffType::Remove),
+                (String::from("bar"), DiffType::Remove),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_annotate_strings_both_empty() {
+        assert_eq!(annotate_strings("", ""), vec![]);
+    }
+
+    #[test]
+    fn test_annotate_strings_identical() {
+        assert_eq!(
+            annotate_strings("foo bar baz", "foo bar baz"),
+            vec![
+                (String::from("foo"), DiffType::Common),
+                (String::from("bar"), DiffType::Common),
+                (String::from("baz"), DiffType::Common),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_annotate_chars_no_common() {
+        assert_eq!(
+            annotate_chars("abc", "xyz"),
+            vec![
+                ('a', DiffType::Remove),
+                ('b', DiffType::Remove),
+                ('c', DiffType::Remove),
+                ('x', DiffType::Add),
+                ('y', DiffType::Add),
+                ('z', DiffType::Add),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_annotate_chars_all_common() {
+        assert_eq!(
+            annotate_chars("abc", "abc"),
+            vec![
+                ('a', DiffType::Common),
+                ('b', DiffType::Common),
+                ('c', DiffType::Common),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_annotate_chars_mixed() {
+        assert_eq!(
+            annotate_chars("cat", "car"),
+            vec![
+                ('c', DiffType::Common),
+                ('a', DiffType::Common),
+                ('t', DiffType::Remove),
+                ('r', DiffType::Add),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_annotate_chars_empty_left() {
+        assert_eq!(
+            annotate_chars("", "ab"),
+            vec![('a', DiffType::Add), ('b', DiffType::Add)]
+        );
+    }
+
+    #[test]
+    fn test_annotate_chars_empty_right() {
+        assert_eq!(
+            annotate_chars("ab", ""),
+            vec![('a', DiffType::Remove), ('b', DiffType::Remove)]
+        );
+    }
+
+    #[test]
+    fn test_annotate_chars_both_empty() {
+        assert_eq!(annotate_chars("", ""), vec![]);
+    }
+
+    #[test]
+    fn test_colorize_output() {
+        let input = vec![
+            (String::from("foo"), DiffType::Remove),
+            (String::from("bar"), DiffType::Common),
+            (String::from("baz"), DiffType::Add),
+        ];
+        let mut out = Vec::new();
+        colorize(&input, &mut out);
+        assert_eq!(
+            String::from_utf8(out).unwrap(),
+            "\x1b[31mfoo \x1b[0m\x1b[0mbar \x1b[0m\x1b[32mbaz \x1b[0m\n"
+        );
+    }
+
+    #[test]
+    fn test_colorize_empty() {
+        let mut out = Vec::new();
+        colorize(&[], &mut out);
+        assert_eq!(String::from_utf8(out).unwrap(), "\n");
+    }
 }
